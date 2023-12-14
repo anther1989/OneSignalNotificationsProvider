@@ -1,0 +1,86 @@
+{
+  "pins" : [
+    {
+      "identity" : "gxcorebl",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/GeneXus-SwiftPackages/GXCoreBL.git",
+      "state" : {
+        "revision" : "b31bc659bdac8641a3bf6de769da17fedef9d8bd",
+        "version" : "1.3.0"
+      }
+    },
+    {
+      "identity" : "gxcoremodule_sd_notifications",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/GeneXus-SwiftPackages/GXCoreModule_SD_Notifications.git",
+      "state" : {
+        "revision" : "0172100217ee79507c04723e0c235229cbbf779a",
+        "version" : "1.3.0"
+      }
+    },
+    {
+      "identity" : "gxcoreui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/GeneXus-SwiftPackages/GXCoreUI.git",
+      "state" : {
+        "revision" : "546b14df299c9c01fa1f29bba8565b2e2545495a",
+        "version" : "1.3.0"
+      }
+    },
+    {
+      "identity" : "gxdatalayer",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/GeneXus-SwiftPackages/GXDataLayer.git",
+      "state" : {
+        "revision" : "2bd33011cb81f65fa6cf040e60032224a2385242",
+        "version" : "1.3.0"
+      }
+    },
+    {
+      "identity" : "gxfoundation",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/GeneXus-SwiftPackages/GXFoundation.git",
+      "state" : {
+        "revision" : "bfc81ba27c606abf1dfc07fe25e1dd1f68e5b853",
+        "version" : "1.3.0"
+      }
+    },
+    {
+      "identity" : "gxobjectsmodel",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/GeneXus-SwiftPackages/GXObjectsModel.git",
+      "state" : {
+        "revision" : "caa6930569b696baac380a24eecb63003eea5c16",
+        "version" : "1.3.0"
+      }
+    },
+    {
+      "identity" : "gxstandardclasses",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/GeneXus-SwiftPackages/GXStandardClasses.git",
+      "state" : {
+        "revision" : "8e2ef1cdb394785c15fb5fb9cb36ac88ccd88391",
+        "version" : "1.3.0"
+      }
+    },
+    {
+      "identity" : "onesignal-xcframework",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/OneSignal/OneSignal-XCFramework",
+      "state" : {
+        "revision" : "b466a821e03008ecae885ebf79f52e4b88269b06",
+        "version" : "3.12.6"
+      }
+    },
+    {
+      "identity" : "yajl",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/GeneXus-SwiftPackages/YAJL.git",
+      "state" : {
+        "revision" : "312781b9b75da7dd3495776992bc9cd7ff234788",
+        "version" : "1.3.0"
+      }
+    }
+  ],
+  "version" : 2
+}

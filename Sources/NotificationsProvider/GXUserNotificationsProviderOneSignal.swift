@@ -9,7 +9,7 @@ import GXCoreModule_SD_Notifications
 import OneSignal
 
 @objc(GXUserNotificationsProviderOneSignal)
-open class GXUserNotificationsProviderOneSignal: NSObject, GXUserNotificationsProviderProtocol, OSSubscriptionObserver {
+open class GXUserNotificationsProviderOneSignal: NSObject, GXUserNotificationsProviderProtocol, GXRemoteNotificationsProviderAppDelegateProtocol, OSSubscriptionObserver {
 	
 	private var userId : String? = nil
 	private class func registrationHandlerAdditionalData(withUserId userId: String?) -> [String: Any] {
@@ -25,6 +25,7 @@ open class GXUserNotificationsProviderOneSignal: NSObject, GXUserNotificationsPr
 	public static let notificationsProviderTypeIdentifier = "OneSignal"
 	
 	// MARK: - GXUserNotificationsProviderProtocol
+	
 	public let typeIdentifier = GXUserNotificationsProviderOneSignal.notificationsProviderTypeIdentifier
 	
 	open func initializeProvider(withLaunchOptions launchOptions: [AnyHashable: Any]?) -> Void {
@@ -62,22 +63,11 @@ open class GXUserNotificationsProviderOneSignal: NSObject, GXUserNotificationsPr
 		}
 	}
 	
-	public final var usesMethodSwizzerlingOnDelegateClasses: Bool {
-		get { return true }
-	}
+	public final var usesMethodSwizzerlingOnDelegateClasses: Bool { true }
 	
-	// MARK: OSSubscriptionObserver
+	public final var usesMethodSwizzerlingOnDelegateClassesForSilentNotifications: Bool { false }
 	
-	open func onOSSubscriptionChanged(_ stateChanges: OSSubscriptionStateChanges) {
-		if let newUserId = stateChanges.to.userId {
-			self.userId = newUserId
-			if let completion = waitingForUserIdCompletion {
-				waitingForUserIdCompletion = nil
-				let additionalData = GXUserNotificationsProviderOneSignal.registrationHandlerAdditionalData(withUserId: newUserId)
-				completion(additionalData)
-			}
-		}
-	}
+	public final var remoteAppDelegate: any GXRemoteNotificationsProviderAppDelegateProtocol { self }
 	
 	// MARK: Remote
 	
@@ -85,9 +75,7 @@ open class GXUserNotificationsProviderOneSignal: NSObject, GXUserNotificationsPr
 		OneSignal.promptForPushNotifications(userResponse: nil)
 	}
 	
-	public final var registeringForPushNotificationsAlsoRegisterForUserNotification: Bool {
-		get { return true }
-	}
+	public final var registeringForPushNotificationsAlsoRegisterForUserNotification: Bool { true }
 	
 	open func registrationHandlerAdditionalData(completion: @escaping ([String: Any]) -> Void) -> Void {
 		if let userId = self.userId {
@@ -107,12 +95,38 @@ open class GXUserNotificationsProviderOneSignal: NSObject, GXUserNotificationsPr
 		}
 	}
 	
-	public final var handlesSilentNotificationsCompletion: Bool {
-		get { return false }
-	}
+	public final var handlesSilentNotificationsCompletion: Bool { false }
 	
-	public final var handlesNotificationsResponsesCompletion: Bool {
-		get { return false }
+	public final var handlesNotificationsResponsesCompletion: Bool { false }
+	
+	// MARK: GXRemoteNotificationsProviderAppDelegateProtocol
+	
+	public final func onDidRegisterForRemoteNotifications(withDeviceToken devToken: Data) { }
+	
+	public final func onDidFailToRegisterForRemoteNotificationsWithError(_ error: Error) { }
+	
+	#if !os(tvOS)
+	public final func onDidReceiveRemoteNotification(_ userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping () -> Void) {
+		guard let notification = OSNotification.parse(withApns: userInfo), let additionalData = notification.additionalData, notification.isSilentNotification,
+		let notificationActionHandler = GXUNNotificationFactory.actionHandler(for: GXUNNotificationDefaultActionIdentifier, fromPushNotification: additionalData) else {
+			completionHandler()
+			return
+		}
+		GXUserNotificationsManager.handleReceivedSilentNotification(notificationActionHandler, withCompletionHandler: completionHandler)
+	}
+	#endif // !os(tvOS)
+	
+	// MARK: OSSubscriptionObserver
+
+	open func onOSSubscriptionChanged(_ stateChanges: OSSubscriptionStateChanges) {
+		if let newUserId = stateChanges.to.userId {
+			self.userId = newUserId
+			if let completion = waitingForUserIdCompletion {
+				waitingForUserIdCompletion = nil
+				let additionalData = GXUserNotificationsProviderOneSignal.registrationHandlerAdditionalData(withUserId: newUserId)
+				completion(additionalData)
+			}
+		}
 	}
 }
 

@@ -118,19 +118,19 @@ open class GXUserNotificationsProviderOneSignal: NSObject, GXUserNotificationsPr
 
 private extension OSNotification {
 	
-	// Converted from https://github.com/OneSignal/OneSignal-iOS-SDK/blob/5f3b7f668030b501c88f71455392e82d9964ffe2/iOS_SDK/OneSignalSDK/Source/OneSignalHelper.m#L180
+	// Source https://github.com/OneSignal/OneSignal-iOS-SDK/blob/5ff232ea9392f63e87306752025a45eceb18fa5b/iOS_SDK/OneSignalSDK/OneSignalCore/Source/OSNotification.m#L46
 	/// No alert, sound, or badge payload
 	var isSilentNotification: Bool {
 		get {
-			let apsPayload = self.rawPayload["aps"] as? [AnyHashable : Any]
-			
-			if self.rawPayload["badge"] != nil || apsPayload?["badge"] != nil,
-			   self.rawPayload["m"] != nil || self.rawPayload["o"] != nil || self.rawPayload["s"] != nil,
-			   !(self.title?.isEmpty ?? true), !(self.sound?.isEmpty ?? true), apsPayload?["sound"] != nil, apsPayload?["alert"] != nil,
-			   (self.rawPayload["os_data"] as? [AnyHashable : Any])?["buttons"] != nil {
-				return false
-			}
-			
+			lazy var apsPayload = self.rawPayload["aps"] as? [AnyHashable : Any]
+			let hasAlert = self.body != nil || self.title != nil || self.subtitle != nil || apsPayload?["alert"] != nil
+			guard !hasAlert else { return false }
+			let hasBadge = self.badge != 0 || self.badgeIncrement != 0 || rawPayload["badge"] != nil || apsPayload?["badge"] != nil
+			guard !hasBadge else { return false }
+			let hasSound = self.sound != nil
+			guard !hasSound else { return false }
+			let hasActionButtons = self.actionButtons?.isEmpty == false
+			guard !hasActionButtons else { return false }
 			return true
 		}
 	}

@@ -1,7 +1,7 @@
-// swift-tools-version: 5.7
+// swift-tools-version: 5.9
 import PackageDescription
 
-let GX_FC_LAST_VERSION = Version("1.3.0-beta")
+let GX_FC_LAST_VERSION = Version("2.0.0-beta")
 
 let package = Package(
 	name: "OneSignalNotificationsProvider",

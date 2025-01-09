@@ -1,11 +1,11 @@
 // swift-tools-version: 5.9
 import PackageDescription
 
-let GX_FC_LAST_VERSION = Version("2.0.0-beta")
+let GX_FC_LAST_VERSION = Version("3.0.0-beta")
 
 let package = Package(
 	name: "OneSignalNotificationsProvider",
-	platforms: [.iOS(.v12)],
+	platforms: [.iOS(.v13)],
 	products: [
 		.library(name: "OneSignalNotificationProvider", targets: ["OneSignalNotificationProvider"]),
 		.library(name: "OneSignalNotificationServiceExtension", targets: ["OneSignalNotificationServiceExtension"]),

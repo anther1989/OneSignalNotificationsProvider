@@ -4,25 +4,25 @@
 //
 
 import Foundation
-import OneSignal
+import OneSignalFramework
 import GXCoreBL
 import GXCoreModule_SD_Notifications
 
 public class GXOSNotificationOpenedResultWrapper: NSObject, GXUNNotificationResponse, GXUNNotification, GXUNNotificationRequest, GXUNNotificationContent {
 	
-	public let osNotificationOpenedResult: OSNotificationOpenedResult
+	public let osNotificationClickEvent: OSNotificationClickEvent
 	
-	class func from(result: OSNotificationOpenedResult) -> GXOSNotificationOpenedResultWrapper {
+	class func from(event: OSNotificationClickEvent) -> GXOSNotificationOpenedResultWrapper {
 //		if result.userText == nil {
-			return GXOSNotificationOpenedResultWrapper(result: result)
+			return GXOSNotificationOpenedResultWrapper(event: event)
 //		}
 //		else {
-//			return GXOSNotificationOpenedResultTextInputWrapper(result: result)
+//			return GXOSNotificationOpenedResultTextInputWrapper(event: event)
 //		}
 	}
 	
-	fileprivate init(result: OSNotificationOpenedResult) {
-		self.osNotificationOpenedResult = result
+	fileprivate init(event: OSNotificationClickEvent) {
+		self.osNotificationClickEvent = event
 		super.init()
 	}
 	
@@ -34,24 +34,16 @@ public class GXOSNotificationOpenedResultWrapper: NSObject, GXUNNotificationResp
 	
 	public var actionIdentifier: String {
 		get {
-			let action = self.osNotificationOpenedResult.action
-			guard let actionID = action.actionId else {
+			guard let actionID = self.osNotificationClickEvent.result.actionId else {
 				return GXUNNotificationDefaultActionIdentifier
 			}
 			
-			if #available(iOS 10, *) {
-				switch actionID {
-				case UNNotificationDefaultActionIdentifier:
-					return GXUNNotificationDefaultActionIdentifier
-				case UNNotificationDismissActionIdentifier:
-					return GXUNNotificationDismissActionIdentifier
-				default: break
-				}
-			}
-			else {
-				if action.type == .opened || actionID == "__DEFAULT__" {
-					return GXUNNotificationDefaultActionIdentifier
-				}
+			switch actionID {
+			case UNNotificationDefaultActionIdentifier:
+				return GXUNNotificationDefaultActionIdentifier
+			case UNNotificationDismissActionIdentifier:
+				return GXUNNotificationDismissActionIdentifier
+			default: break
 			}
 			return actionID
 		}
@@ -67,7 +59,7 @@ public class GXOSNotificationOpenedResultWrapper: NSObject, GXUNNotificationResp
 	// MARK: - GXUNNotificationRequest
 	
 	public var identifier: String {
-		get { return self.osNotificationOpenedResult.notification.notificationId ?? "" }
+		get { return self.osNotificationClickEvent.notification.notificationId ?? "" }
 	}
 	
 	public var content: GXUNNotificationContent { get { return self } }
@@ -76,7 +68,7 @@ public class GXOSNotificationOpenedResultWrapper: NSObject, GXUNNotificationResp
 	
 	public var badge: NSNumber? {
 		get {
-			let badge = self.osNotificationOpenedResult.notification.badge
+			let badge = self.osNotificationClickEvent.notification.badge
 			guard badge > 0 else { return nil }
 			return NSNumber(value: badge)
 		}
@@ -84,41 +76,37 @@ public class GXOSNotificationOpenedResultWrapper: NSObject, GXUNNotificationResp
 	
 	public var body: String? {
 		get {
-			return self.osNotificationOpenedResult.notification.body
+			return self.osNotificationClickEvent.notification.body
 		}
 	}
 	
 	public var categoryIdentifier: String? {
 		get {
-			guard let aps = self.rawPayloadAPS else { return nil }
-			
-			return aps["category"] as? String
+			self.osNotificationClickEvent.notification.category
 		}
 	}
 	
 	public var subtitle: String? {
 		get {
-			return self.osNotificationOpenedResult.notification.subtitle
+			return self.osNotificationClickEvent.notification.subtitle
 		}
 	}
 	
 	public var threadIdentifier: String? {
 		get {
-			guard let aps = self.rawPayloadAPS else { return nil }
-			
-			return aps["thread-id"] as? String
+			return self.osNotificationClickEvent.notification.threadId
 		}
 	}
 	
 	public var title: String? {
 		get {
-			return self.osNotificationOpenedResult.notification.title
+			return self.osNotificationClickEvent.notification.title
 		}
 	}
 	
 	public var userInfo: [AnyHashable : Any] {
 		get {
-			return self.osNotificationOpenedResult.notification.additionalData ?? [:]
+			return self.osNotificationClickEvent.notification.additionalData ?? [:]
 		}
 	}
 	
@@ -130,7 +118,7 @@ private extension GXOSNotificationOpenedResultWrapper {
 	var rawPayloadAPS: [AnyHashable : Any]?
 	{
 		get {
-			return self.osNotificationOpenedResult.notification.rawPayload["aps"] as? [AnyHashable : Any]
+			return self.osNotificationClickEvent.notification.rawPayload["aps"] as? [AnyHashable : Any]
 		}
 	}
 }
@@ -141,6 +129,6 @@ private extension GXOSNotificationOpenedResultWrapper {
 //	// MARK: GXUNNotificationResponse
 //	
 //	public var userText: String {
-//		get { return self.osNotificationOpenedResult.userText ?? "" }
+//		get { return self.osNotificationClickEvent.result.userText ?? "" }
 //	}
 //}

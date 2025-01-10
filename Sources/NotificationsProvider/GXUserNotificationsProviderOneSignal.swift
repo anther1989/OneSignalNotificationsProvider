@@ -6,10 +6,10 @@
 import Foundation
 import GXCoreBL
 import GXCoreModule_SD_Notifications
-import OneSignal
+import OneSignalFramework
 
 @objc(GXUserNotificationsProviderOneSignal)
-open class GXUserNotificationsProviderOneSignal: NSObject, GXUserNotificationsProviderProtocol, GXRemoteNotificationsProviderAppDelegateProtocol, OSSubscriptionObserver {
+open class GXUserNotificationsProviderOneSignal: NSObject, GXUserNotificationsProviderProtocol, GXRemoteNotificationsProviderAppDelegateProtocol, OSNotificationLifecycleListener, OSNotificationClickListener, OSPushSubscriptionObserver {
 	
 	private var userId : String? = nil
 	private class func registrationHandlerAdditionalData(withUserId userId: String?) -> [String: Any] {
@@ -30,36 +30,14 @@ open class GXUserNotificationsProviderOneSignal: NSObject, GXUserNotificationsPr
 	
 	open func initializeProvider(withLaunchOptions launchOptions: [AnyHashable: Any]?) -> Void {
 		let appId = GXUserNotificationsManager.notificationsProviderProperties["AppID"] as? String
-		
-		OneSignal.setLocationShared(false)
-		OneSignal.initWithLaunchOptions(launchOptions)
-		OneSignal.setAppId(appId ?? "")
-		
-		let notifWillShowInForegroundHandler: OSNotificationWillShowInForegroundBlock = { notification, completion in
-			guard notification.isSilentNotification else {
-				completion(GXUserNotificationsManager.defaultGXUNNotificationPresentationOptions.isEmpty ? nil : notification)
-				return
-			}
-			
-			if let additionalData = notification.additionalData, let notificationActionHandler = GXUNNotificationFactory.actionHandler(for: GXUNNotificationDefaultActionIdentifier, fromPushNotification: additionalData) {
-				GXUserNotificationsManager.handleReceivedSilentNotification(notificationActionHandler)
-			}
-			
-			completion(nil)
-		}
-		OneSignal.setNotificationWillShowInForegroundHandler(notifWillShowInForegroundHandler)
-
-		let notificationOpenedBlock: OSNotificationOpenedBlock = { result in
-			guard !result.notification.isSilentNotification else { return }
-			
-			let gxNotificationResponse = GXOSNotificationOpenedResultWrapper.from(result: result)
-			GXUserNotificationsManager.handleReceivedNotificationResponse(gxNotificationResponse)
-		}
-		OneSignal.setNotificationOpenedHandler(notificationOpenedBlock)
-		if let userId = OneSignal.getDeviceState().userId {
+		OneSignal.initialize(appId ?? "", withLaunchOptions: launchOptions)
+		OneSignal.Notifications.addForegroundLifecycleListener(self)
+		OneSignal.Notifications.addClickListener(self)
+		let pushSubscription = OneSignal.User.pushSubscription
+		if let userId = pushSubscription.id {
 			self.userId = userId
 		} else {
-			OneSignal.add(self as OSSubscriptionObserver);
+			pushSubscription.addObserver(self)
 		}
 	}
 	
@@ -72,7 +50,7 @@ open class GXUserNotificationsProviderOneSignal: NSObject, GXUserNotificationsPr
 	// MARK: Remote
 	
 	open func registerForPushNotifications() -> Void {
-		OneSignal.promptForPushNotifications(userResponse: nil)
+		OneSignal.Notifications.requestPermission()
 	}
 	
 	public final var registeringForPushNotificationsAlsoRegisterForUserNotification: Bool { true }
@@ -115,11 +93,36 @@ open class GXUserNotificationsProviderOneSignal: NSObject, GXUserNotificationsPr
 		GXUserNotificationsManager.handleReceivedSilentNotification(notificationActionHandler, withCompletionHandler: completionHandler)
 	}
 	#endif // !os(tvOS)
-	
-	// MARK: OSSubscriptionObserver
 
-	open func onOSSubscriptionChanged(_ stateChanges: OSSubscriptionStateChanges) {
-		if let newUserId = stateChanges.to.userId {
+	// MARK: OSNotificationLifecycleListener
+	
+	open func onWillDisplay(event: OSNotificationWillDisplayEvent) {
+		guard event.notification.isSilentNotification else {
+			if GXUserNotificationsManager.defaultGXUNNotificationPresentationOptions.isEmpty {
+				event.preventDefault()
+			}
+			return
+		}
+		event.preventDefault()
+		if let additionalData = event.notification.additionalData,
+		   let notificationActionHandler = GXUNNotificationFactory.actionHandler(for: GXUNNotificationDefaultActionIdentifier, fromPushNotification: additionalData) {
+			GXUserNotificationsManager.handleReceivedSilentNotification(notificationActionHandler)
+		}
+	}
+	
+	// MARK: OSNotificationClickListener
+	
+	open func onClick(event: OSNotificationClickEvent) {
+		guard !event.notification.isSilentNotification else { return }
+		
+		let gxNotificationResponse = GXOSNotificationOpenedResultWrapper.from(event: event)
+		GXUserNotificationsManager.handleReceivedNotificationResponse(gxNotificationResponse)
+	}
+	
+	// MARK: OSPushSubscriptionObserver
+	
+	open func onPushSubscriptionDidChange(state: OneSignalUser.OSPushSubscriptionChangedState) {
+		if let newUserId = state.current.id {
 			self.userId = newUserId
 			if let completion = waitingForUserIdCompletion {
 				waitingForUserIdCompletion = nil

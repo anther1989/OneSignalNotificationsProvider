@@ -1,4 +1,5 @@
 {
+  "originHash" : "9d5cb97bfa7202ca5faf3a84e506e5bfc0d3d2cd6b9f0af6bf0f629d7c67a7a2",
   "pins" : [
     {
       "identity" : "gxcorebl",
@@ -68,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/OneSignal/OneSignal-XCFramework",
       "state" : {
-        "revision" : "b466a821e03008ecae885ebf79f52e4b88269b06",
-        "version" : "3.12.6"
+        "revision" : "3bc37b379581442be7d6337d01f5c7e5d6a4cdde",
+        "version" : "5.2.9"
       }
     },
     {
@@ -82,5 +83,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }

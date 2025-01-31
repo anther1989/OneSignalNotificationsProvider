@@ -5,7 +5,7 @@ let GX_FC_LAST_VERSION = Version("3.0.0-beta")
 
 let package = Package(
 	name: "OneSignalNotificationsProvider",
-	platforms: [.iOS(.v13)],
+	platforms: [.iOS(.v15)],
 	products: [
 		.library(name: "OneSignalNotificationProvider", targets: ["OneSignalNotificationProvider"]),
 		.library(name: "OneSignalNotificationServiceExtension", targets: ["OneSignalNotificationServiceExtension"]),

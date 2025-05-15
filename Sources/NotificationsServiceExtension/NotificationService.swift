@@ -42,6 +42,9 @@ class NotificationService: UNNotificationServiceExtension {
     }
 
 	override func serviceExtensionTimeWillExpire() {
+        os_log("serviceExtensionTimeWillExpire ejecutado en NotificationServiceExtension", log: .default, type: .info)
+        
+        print("Entró a serviceExtensionTimeWillExpire en NotificationServiceExtension")
 		// Called just before the extension will be terminated by the system.
 		// Use this as an opportunity to deliver your "best attempt" at modified content, otherwise the original push payload will be used.
 		if let contentHandler = contentHandler, let bestAttemptContent =  bestAttemptContent {

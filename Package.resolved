@@ -1,6 +1,15 @@
 {
   "pins" : [
     {
+      "identity" : "engagesdk_ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://bitbucket.org/fopartner/engagesdk_ios.git",
+      "state" : {
+        "revision" : "b55c803e19e2cba6192986252ab1c2acc82a59a6",
+        "version" : "4.2.0"
+      }
+    },
+    {
       "identity" : "gxcorebl",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/GeneXus-SwiftPackages/GXCoreBL.git",

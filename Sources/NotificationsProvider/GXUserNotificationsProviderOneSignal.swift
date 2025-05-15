@@ -36,6 +36,7 @@ open class GXUserNotificationsProviderOneSignal: NSObject, GXUserNotificationsPr
 		let pushSubscription = OneSignal.User.pushSubscription
 		if let userId = pushSubscription.id {
 			self.userId = userId
+            print("🔑 OneSignal playerId desde initializeProvider: \(userId)")
 		} else {
 			pushSubscription.addObserver(self)
 		}
@@ -124,6 +125,7 @@ open class GXUserNotificationsProviderOneSignal: NSObject, GXUserNotificationsPr
 	open func onPushSubscriptionDidChange(state: OneSignalUser.OSPushSubscriptionChangedState) {
 		if let newUserId = state.current.id {
 			self.userId = newUserId
+            print("🔑 OneSignal playerId recibido en onPushSubscriptionDidChange: \(newUserId)")
 			if let completion = waitingForUserIdCompletion {
 				waitingForUserIdCompletion = nil
 				let additionalData = GXUserNotificationsProviderOneSignal.registrationHandlerAdditionalData(withUserId: newUserId)

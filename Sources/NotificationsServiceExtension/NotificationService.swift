@@ -5,7 +5,7 @@
 
 import UserNotifications
 import OneSignalExtension
-import EngageKit
+//import EngageKit
 import os.log
 
 class NotificationService: UNNotificationServiceExtension {
@@ -16,14 +16,14 @@ class NotificationService: UNNotificationServiceExtension {
 
     override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
         
-        os_log("🔔 didReceive ejecutado en NotificationServiceExtension", log: .default, type: .info)
+        os_log("didReceive ejecutado en NotificationServiceExtension", log: .default, type: .info)
         
-        //print("Entró a didReceive en NotificationServiceExtension")
+        print("Entró a didReceive en NotificationServiceExtension")
         self.receivedRequest = request;
         self.contentHandler = contentHandler
         bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
         
-        bestAttemptContent?.title = "📩 Modificada por NSE"
+        bestAttemptContent?.title = "Modificada por NSE"
         
         //Handle the Engage Push response//
         /*if Engage.shared.isEngagePayload(bestAttemptContent?.userInfo){

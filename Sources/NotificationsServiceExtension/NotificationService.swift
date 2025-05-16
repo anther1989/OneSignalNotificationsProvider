@@ -16,14 +16,21 @@ class NotificationService: UNNotificationServiceExtension {
 
     override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
         
-        os_log("didReceive ejecutado en NotificationServiceExtension", log: .default, type: .info)
-        
-        print("Entró a didReceive en NotificationServiceExtension")
         self.receivedRequest = request;
         self.contentHandler = contentHandler
         bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
         
-        bestAttemptContent?.title = "Modificada por NSE"
+        // Logs para confirmar ejecución
+        print("📢 NotificationServiceExtension ejecutado")
+        os_log("NotificationServiceExtension ejecutado")
+
+        if let bestAttemptContent = bestAttemptContent {
+            bestAttemptContent.title = "Notificación modificada"
+            bestAttemptContent.subtitle = "Extensión ejecutada"
+            bestAttemptContent.body += " (modificada por la extensión)"
+
+            contentHandler(bestAttemptContent)
+        }
         
         //Handle the Engage Push response//
         /*if Engage.shared.isEngagePayload(bestAttemptContent?.userInfo){
@@ -35,22 +42,29 @@ class NotificationService: UNNotificationServiceExtension {
             )
         } else {*/
             //Handle other Push Response like OneSignal //
-            if let bestAttemptContent = bestAttemptContent {
+           /* if let bestAttemptContent = bestAttemptContent {
                 OneSignalExtension.didReceiveNotificationExtensionRequest(self.receivedRequest, with: bestAttemptContent, withContentHandler: contentHandler)
-            }
+            }*/
         //}
     }
 
 	override func serviceExtensionTimeWillExpire() {
-        os_log("serviceExtensionTimeWillExpire ejecutado en NotificationServiceExtension", log: .default, type: .info)
-        
-        print("Entró a serviceExtensionTimeWillExpire en NotificationServiceExtension")
 		// Called just before the extension will be terminated by the system.
 		// Use this as an opportunity to deliver your "best attempt" at modified content, otherwise the original push payload will be used.
-		if let contentHandler = contentHandler, let bestAttemptContent =  bestAttemptContent {
+        
+        // Logs para saber si se agotó el tiempo
+        print("⚠️ Extensión está por expirar sin completar")
+        os_log("Extensión está por expirar sin completar")
+
+        if let contentHandler = contentHandler,
+           let bestAttemptContent = bestAttemptContent {
+            contentHandler(bestAttemptContent)
+        }
+        
+		/*if let contentHandler = contentHandler, let bestAttemptContent =  bestAttemptContent {
 			OneSignalExtension.serviceExtensionTimeWillExpireRequest(self.receivedRequest, with: self.bestAttemptContent)
 			contentHandler(bestAttemptContent)
-		}
+		}*/
 	}
 
 }
